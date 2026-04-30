@@ -1,0 +1,55 @@
+name: Actualizar Reporte TaT — Dirección
+
+on:
+  schedule:
+    # Diario a las 7:00 AM hora Ciudad de México (13:00 UTC)
+    # Solo lunes a viernes
+    - cron: '0 13 * * 1-5'
+  # Ejecución manual desde GitHub
+  workflow_dispatch:
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4.2.2
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias Python
+        run: pip install pandas requests numpy
+
+      - name: Actualizar reporte
+        env:
+          CSV_URL: ${{ secrets.CSV_URL }}
+        run: python actualizar_reporte.py
+
+      - name: Instalar Staticrypt
+        run: npm install -g staticrypt
+
+      - name: Proteger reporte con contraseña
+        run: |
+          staticrypt index.html \
+            --password "${{ secrets.STATICRYPT_PASSWORD }}" \
+            --remember 30 \
+            --template-title "Percapita — Reporte TaT Dirección" \
+            --template-instructions "Ingresa la contraseña para acceder al reporte" \
+            --template-color-primary "#1a4a8a" \
+            --template-color-secondary "#3d9be8"
+          mv encrypted/index.html index.html
+          rm -rf encrypted
+
+      - name: Publicar reporte actualizado
+        run: |
+          git config user.name "Reporte Bot"
+          git config user.email "bot@percapita.mx"
+          git add index.html
+          git diff --staged --quiet || git commit -m "Reporte actualizado $(date +'%Y-%m-%d %H:%M') CST"
+          git push
