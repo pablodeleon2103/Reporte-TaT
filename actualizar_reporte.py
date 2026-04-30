@@ -205,7 +205,8 @@ def calcular_indicadores(df):
     mes_anterior = meses[-2] if len(meses) >= 2 else mes_actual
     dm  = df[df['mes'] == mes_actual].copy()
     dp  = df[df['mes'] == mes_anterior].copy()
-    hoy = datetime.now()
+    from zoneinfo import ZoneInfo
+    hoy = datetime.now(ZoneInfo('America/Mexico_City'))
 
     log(f"  Mes actual: {mes_actual} ({len(dm)} registros) | Anterior: {mes_anterior} ({len(dp)} registros)")
 
