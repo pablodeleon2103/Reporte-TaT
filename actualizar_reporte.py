@@ -206,7 +206,8 @@ def calcular_indicadores(df):
     dm  = df[df['mes'] == mes_actual].copy()
     dp  = df[df['mes'] == mes_anterior].copy()
     from zoneinfo import ZoneInfo
-    hoy = datetime.now(ZoneInfo('America/Mexico_City'))
+    hoy_mx = datetime.now(ZoneInfo('America/Mexico_City'))
+    hoy = datetime.now()
 
     log(f"  Mes actual: {mes_actual} ({len(dm)} registros) | Anterior: {mes_anterior} ({len(dp)} registros)")
 
@@ -357,7 +358,7 @@ def calcular_indicadores(df):
         'mes_actual_corto':        mes_corto(mes_actual),
         'mes_anterior_corto':      mes_corto(mes_anterior),
         'fecha_corte':             fecha_corte(mes_actual),
-        'hora_actualizacion':      hoy.strftime('%H:%M'),
+        'hora_actualizacion':      hoy_mx.strftime('%H:%M'),
         'tat_med':                 tat_act,
         'tat_anterior':            tat_prev,
         'aprobacion_pct':          apr_act,
