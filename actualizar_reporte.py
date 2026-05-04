@@ -139,7 +139,7 @@ def descargar_base_control():
     """Descarga la Base de Control desde Google Sheets como CSV."""
     import requests
     from io import StringIO
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
+    url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRJ6r-1yEdDh-ZwYa6WiQuiYSyaq4mqEfWw1Zhez8ERhzIOYvK2teCKJMs8DVdD1O0JAPMTUU3bpaI/pub?gid=1318178910&single=true&output=csv"
     log("Descargando Base de Control desde Google Sheets...")
     try:
         resp = requests.get(url, timeout=30)
