@@ -37,6 +37,7 @@ jobs:
           staticrypt index.html \
             --password "${{ secrets.STATICRYPT_PASSWORD }}" \
             --remember 30 \
+            --salt "reporte-direccion-percapita" \
             --template-title "Percapita — Reporte TaT Dirección" \
             --template-instructions "Ingresa la contraseña para acceder al reporte" \
             --template-color-primary "#1a4a8a" \
