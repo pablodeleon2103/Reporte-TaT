@@ -2,10 +2,7 @@ name: Actualizar Reporte TaT — Dirección
 
 on:
   schedule:
-    # Diario a las 7:00 AM hora Ciudad de México (13:00 UTC)
-    # Solo lunes a viernes
     - cron: '0 13 * * 1-5'
-  # Ejecución manual desde GitHub
   workflow_dispatch:
 
 jobs:
@@ -36,6 +33,7 @@ jobs:
 
       - name: Proteger reporte con contraseña
         run: |
+          cp index_base.html index.html
           staticrypt index.html \
             --password "${{ secrets.STATICRYPT_PASSWORD }}" \
             --remember 30 \
@@ -50,6 +48,6 @@ jobs:
         run: |
           git config user.name "Reporte Bot"
           git config user.email "bot@percapita.mx"
-          git add index.html
+          git add index.html index_base.html
           git diff --staged --quiet || git commit -m "Reporte actualizado $(date +'%Y-%m-%d %H:%M') CST"
           git push
