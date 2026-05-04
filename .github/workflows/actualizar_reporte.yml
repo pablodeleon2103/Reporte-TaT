@@ -21,7 +21,7 @@ jobs:
           python-version: '3.11'
 
       - name: Instalar dependencias Python
-        run: pip install pandas requests numpy
+        run: pip install pandas requests numpy pytz
 
       - name: Actualizar reporte
         env:
