@@ -128,6 +128,94 @@ def descargar_csv(url):
     log(f"  ✓ {len(df):,} filas descargadas")
     return df
 
+
+# ══════════════════════════════════════════════════════
+# PASO 2B — DESCARGAR BASE DE CONTROL (Google Sheets)
+# ══════════════════════════════════════════════════════
+
+SHEET_ID = os.environ.get('SHEET_ID', '11fk_9Vl8CBNVW1cDtZL5GEOjuV9VM7K8dugi5rTimJE')
+
+def descargar_base_control():
+    """Descarga la Base de Control desde Google Sheets como CSV."""
+    import requests
+    from io import StringIO
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
+    log("Descargando Base de Control desde Google Sheets...")
+    try:
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        df = pd.read_csv(StringIO(resp.text), encoding='utf-8')
+        # Limpiar columnas
+        df.columns = df.columns.str.strip()
+        # Renombrar columna de fecha (primera columna)
+        cols = list(df.columns)
+        col_fecha = cols[0]
+        df = df.rename(columns={col_fecha: 'FECHA'})
+        df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce', dayfirst=True)
+        log(f"  ✓ Base de Control: {len(df):,} registros")
+        return df
+    except Exception as e:
+        log(f"  ⚠️ No se pudo descargar Base de Control: {e}")
+        return None
+
+
+def calcular_indicadores_control(bc, mes_actual, mes_anterior):
+    """Calcula indicadores de la Base de Control para el reporte."""
+    if bc is None or len(bc) == 0:
+        return None
+
+    # Filtrar por mes actual y anterior
+    bc['mes'] = bc['FECHA'].dt.to_period('M')
+    dm = bc[bc['mes'] == mes_actual].copy()
+    dp = bc[bc['mes'] == mes_anterior].copy()
+
+    if len(dm) == 0:
+        log("  ⚠️ Sin datos de Base de Control para el mes actual")
+        return None
+
+    def dist(d, col):
+        if col not in d.columns: return []
+        total = len(d)
+        return [{'label': str(k), 'n': int(v), 'pct': round(v/total*100,1)}
+                for k,v in d[col].value_counts().head(10).items()]
+
+    # Canales
+    canales_act = dist(dm, 'CANAL')
+    canales_ant = dist(dp, 'CANAL')
+
+    # Motivos
+    motivos_act = dist(dm, 'MOTIVO DE CONTACTO')
+
+    # Resultados
+    resultados_act = dist(dm, 'RESULTADO')
+
+    # Por asesor
+    asesores = []
+    if 'ASESOR' in dm.columns:
+        for asesor, g in dm.groupby('ASESOR'):
+            if pd.isna(asesor): continue
+            total_a = len(g)
+            res = g['RESULTADO'].value_counts() if 'RESULTADO' in g.columns else pd.Series()
+            apoyo = int(res.get('Apoyo a solicitar', 0)) + int(res.get('Apoyo a cerrar', 0))
+            asesores.append({
+                'asesor':    str(asesor),
+                'total':     total_a,
+                'apoyo':     apoyo,
+                'pct_apoyo': round(apoyo/total_a*100,1) if total_a else 0,
+            })
+        asesores.sort(key=lambda x: x['total'], reverse=True)
+
+    # Totales comparativos
+    return {
+        'total_act':     len(dm),
+        'total_ant':     len(dp),
+        'canales_act':   canales_act,
+        'canales_ant':   canales_ant,
+        'motivos_act':   motivos_act,
+        'resultados_act':resultados_act,
+        'asesores':      asesores,
+    }
+
 # ══════════════════════════════════════════════════════
 # PASO 2 — PREPARAR BASE (filtros v8)
 # ══════════════════════════════════════════════════════
@@ -200,9 +288,29 @@ def bloque_horario(h):
 
 
 def calcular_indicadores(df):
-    meses        = sorted(df['mes'].unique())
-    mes_actual   = meses[-1]
-    mes_anterior = meses[-2] if len(meses) >= 2 else mes_actual
+    meses = sorted(df['mes'].unique())
+
+    # ── Lógica de mes inteligente ──
+    # Días 1-7: el mes en curso tiene pocos datos — reportar mes anterior completo
+    # Día 8+:   reportar mes en curso vs mes anterior
+    try:
+        import pytz as _pytz
+        _hoy_check = datetime.now(_pytz.timezone('America/Mexico_City'))
+    except ImportError:
+        from zoneinfo import ZoneInfo as _ZI
+        _hoy_check = datetime.now(_ZI('America/Mexico_City'))
+
+    if _hoy_check.day <= 7:
+        # Primera semana — usar mes anterior como principal
+        mes_actual   = meses[-2] if len(meses) >= 2 else meses[-1]
+        mes_anterior = meses[-3] if len(meses) >= 3 else meses[-2] if len(meses) >= 2 else meses[-1]
+        log(f"  📅 Día {_hoy_check.day} del mes — mostrando mes anterior completo ({mes_actual})")
+    else:
+        # Día 8+ — usar mes en curso
+        mes_actual   = meses[-1]
+        mes_anterior = meses[-2] if len(meses) >= 2 else mes_actual
+        log(f"  📅 Día {_hoy_check.day} del mes — mostrando mes en curso ({mes_actual})")
+
     dm  = df[df['mes'] == mes_actual].copy()
     dp  = df[df['mes'] == mes_anterior].copy()
     try:
@@ -439,6 +547,23 @@ def main():
         df = preparar_base(df)
         df = calcular_tat(df)
         D  = calcular_indicadores(df)
+
+        # Agregar datos de Base de Control si está disponible
+        bc = descargar_base_control()
+        if bc is not None:
+            meses_bc = sorted(df['mes'].unique())
+            try:
+                import pytz as _p
+                _hd = datetime.now(_p.timezone('America/Mexico_City'))
+            except ImportError:
+                from zoneinfo import ZoneInfo as _Z
+                _hd = datetime.now(_Z('America/Mexico_City'))
+            mes_rep  = meses_bc[-2] if _hd.day <= 7 and len(meses_bc)>=2 else meses_bc[-1]
+            mes_prev = meses_bc[-3] if _hd.day <= 7 and len(meses_bc)>=3 else meses_bc[-2] if len(meses_bc)>=2 else meses_bc[-1]
+            ctrl = calcular_indicadores_control(bc, mes_rep, mes_prev)
+            if ctrl:
+                D['control'] = ctrl
+                log(f"  ✓ Base de Control integrada: {ctrl['total_act']} contactos")
         inyectar_en_html(D, DASHBOARD_HTML)
         log("✅ REPORTE ACTUALIZADO EXITOSAMENTE")
         log("=" * 55)
