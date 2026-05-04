@@ -571,13 +571,13 @@ html,body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--
 
 // ══ DATOS (inyectados por actualizar_dashboard.py) ══
 const D = {
-  // Actualizado automáticamente — 31 May 2026 09:00
+  // Actualizado automáticamente — 31 May 2026 09:14
   mes_actual: 'Mayo 2026',
   mes_anterior: 'Abril 2026',
   mes_actual_corto: 'May 26',
   mes_anterior_corto: 'Abr 26',
   fecha_corte: '31 May 2026',
-  hora_actualizacion: '09:00',
+  hora_actualizacion: '09:14',
   tat_med: 0.0,
   tat_anterior: 2.97,
   aprobacion_pct: 26.1,
@@ -588,7 +588,7 @@ const D = {
   flujo_completo_anterior: 90.3,
   total_solicitudes: 23,
   total_dispersados: 6,
-  total_monto: 90000,
+  total_monto: 97500,
   productos: [
     {
         "label": "Título",
@@ -607,7 +607,7 @@ const D = {
         "n": 15,
         "aprobacion": 33.3,
         "rechazado": 0.0,
-        "pendiente": 26.7,
+        "pendiente": 20.0,
         "tat_med": 0.0,
         "tat_p90": 0.0,
         "tat_anterior": 1.3,
@@ -691,8 +691,8 @@ const D = {
     },
     {
         "paso": "Datos empleo",
-        "n": 2,
-        "pct": 8.7
+        "n": 1,
+        "pct": 4.3
     },
     {
         "paso": "Evaluación proceso",
@@ -706,8 +706,8 @@ const D = {
     },
     {
         "paso": "En espera dispersión",
-        "n": 4,
-        "pct": 17.4
+        "n": 5,
+        "pct": 21.7
     },
     {
         "paso": "Dispersión iniciada",
@@ -773,31 +773,31 @@ const D = {
         "paso": "evaluacionProceso",
         "label": "Evaluación proceso",
         "n": 6,
-        "pct": 54.5,
+        "pct": 60.0,
+        "med_dias": 2.0,
+        "max_dias": 2.0
+    },
+    {
+        "paso": "generaCURP",
+        "label": "Validación CURP",
+        "n": 1,
+        "pct": 10.0,
         "med_dias": 2.0,
         "max_dias": 2.0
     },
     {
         "paso": "datosEmpleo",
         "label": "Datos empleo",
-        "n": 2,
-        "pct": 18.2,
-        "med_dias": 0.5,
-        "max_dias": 1.0
-    },
-    {
-        "paso": "generaCURP",
-        "label": "Validación CURP",
         "n": 1,
-        "pct": 9.1,
-        "med_dias": 2.0,
-        "max_dias": 2.0
+        "pct": 10.0,
+        "med_dias": 1.0,
+        "max_dias": 1.0
     },
     {
         "paso": "procesoPruebaDeVida",
         "label": "Prueba de vida",
         "n": 1,
-        "pct": 9.1,
+        "pct": 10.0,
         "med_dias": 3.0,
         "max_dias": 3.0
     }
