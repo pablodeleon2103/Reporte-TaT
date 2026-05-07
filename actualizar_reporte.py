@@ -145,14 +145,30 @@ def descargar_base_control():
         resp = requests.get(url, timeout=30)
         resp.raise_for_status()
         df = pd.read_csv(StringIO(resp.text), encoding='utf-8')
-        # Limpiar columnas
+
+        # Limpiar nombres de columnas (quitar espacios)
         df.columns = df.columns.str.strip()
-        # Renombrar columna de fecha (primera columna)
-        cols = list(df.columns)
-        col_fecha = cols[0]
+
+        # La primera columna contiene la fecha pero su nombre varía
+        # (a veces es un número de teléfono u otro valor del encabezado)
+        # La renombramos a FECHA siempre
+        col_fecha = df.columns[0]
         df = df.rename(columns={col_fecha: 'FECHA'})
+
+        # Parsear fechas — el formato es DD/MM/YYYY HH:MM:SS
         df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce', dayfirst=True)
-        log(f"  ✓ Base de Control: {len(df):,} registros")
+
+        # Filtrar filas sin fecha válida (encabezados extra, filas vacías)
+        df = df[df['FECHA'].notna()].copy()
+
+        # Normalizar columnas clave para búsquedas robustas
+        for col in ['CANAL', 'RESULTADO', 'MOTIVO DE CONTACTO', 'ASESOR']:
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.strip()
+
+        log(f"  ✓ Base de Control: {len(df):,} registros | "
+            f"Canales: {df['CANAL'].nunique() if 'CANAL' in df.columns else '?'} | "
+            f"Resultados: {df['RESULTADO'].nunique() if 'RESULTADO' in df.columns else '?'}")
         return df
     except Exception as e:
         log(f"  ⚠️ No se pudo descargar Base de Control: {e}")
@@ -166,6 +182,14 @@ def calcular_indicadores_control(bc, mes_actual, mes_anterior):
 
     # Filtrar por mes actual y anterior
     bc['mes'] = bc['FECHA'].dt.to_period('M')
+
+    # Excluir registros etiquetados como "Renovación (sin historial)"
+    # Son clientes nuevos que en realidad son renovaciones viejas — distorsionan los tiempos
+    col_resultado = 'RESULTADO' if 'RESULTADO' in bc.columns else None
+    if col_resultado:
+        bc = bc[bc[col_resultado] != 'Renovación (sin historial)'].copy()
+        log(f"  ✓ Base de Control filtrada — excluidos 'Renovación (sin historial)'")
+
     dm = bc[bc['mes'] == mes_actual].copy()
     dp = bc[bc['mes'] == mes_anterior].copy()
 
@@ -205,15 +229,26 @@ def calcular_indicadores_control(bc, mes_actual, mes_anterior):
             })
         asesores.sort(key=lambda x: x['total'], reverse=True)
 
+    # ── Métricas de atacables gestionados por Dashboard ──
+    dashboard_metricas = {'exitoso': 0, 'declinado': 0, 'en_proceso': 0, 'total': 0}
+    if col_resultado and 'RESULTADO' in dm.columns:
+        dashboard_metricas['exitoso']    = int((dm['RESULTADO'] == 'Dashboard Exitoso').sum())
+        dashboard_metricas['declinado']  = int((dm['RESULTADO'] == 'Dashboard Declinado').sum())
+        dashboard_metricas['en_proceso'] = int((dm['RESULTADO'] == 'Dashboard en proceso').sum())
+        dashboard_metricas['total']      = (dashboard_metricas['exitoso'] +
+                                             dashboard_metricas['declinado'] +
+                                             dashboard_metricas['en_proceso'])
+
     # Totales comparativos
     return {
-        'total_act':     len(dm),
-        'total_ant':     len(dp),
-        'canales_act':   canales_act,
-        'canales_ant':   canales_ant,
-        'motivos_act':   motivos_act,
-        'resultados_act':resultados_act,
-        'asesores':      asesores,
+        'total_act':          len(dm),
+        'total_ant':          len(dp),
+        'canales_act':        canales_act,
+        'canales_ant':        canales_ant,
+        'motivos_act':        motivos_act,
+        'resultados_act':     resultados_act,
+        'asesores':           asesores,
+        'dashboard_metricas': dashboard_metricas,
     }
 
 # ══════════════════════════════════════════════════════
