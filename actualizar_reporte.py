@@ -5,6 +5,13 @@ Descarga el CSV desde nueva.percapita.mx, calcula todos los
 indicadores del reporte mensual de TaT y actualiza index.html.
 
 Corre en GitHub Actions — no necesita config.txt ni token.
+
+Cambios v2 (jun 2026):
+- Fix typo loanAceppped → loanAceppted (estaba contando 0)
+- Deduplicación por ID Crédito (clave única real)
+- Timeout 300s + 3 reintentos en descarga CSV
+- TaT desglosado por sub-etapas (revisión, operación, rechazo)
+- Motivos de rechazo, ratio Monto Autorizado/Solicitado, mapa por Estado Residencia
 """
 
 import pandas as pd
@@ -12,6 +19,7 @@ import numpy as np
 import json
 import os
 import sys
+import time
 import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -45,6 +53,8 @@ PROD_LABEL  = {'TITULO':'Título','HIBRIDO':'Híbrido',
 PROD_COLORS = {'TITULO':'#1a5e9e','HIBRIDO':'#1e7347',
                'RENOVACIONTITULO':'#c85a17','RENOVACIONHIBRIDO':'#c97c00'}
 PROD_ORDER  = ['TITULO','HIBRIDO','RENOVACIONTITULO','RENOVACIONHIBRIDO']
+# Nota: RENOVACIONMIXTO entra al dataset como cualquier renovación,
+# pero no se desglosa como cubo separado (decisión Pablo, jun 2026).
 
 STEP_LABEL = {
     'crearUsuario':'Crear usuario','datosPersona':'Datos personales',
@@ -52,10 +62,16 @@ STEP_LABEL = {
     'datosDomicilio':'Datos domicilio','datosEmpleo':'Datos empleo',
     'datosReferenciaPersonal':'Referencias','evaluacionProceso':'Evaluación proceso',
     'medioEntrega':'Medio de entrega','procesoPruebaDeVida':'Prueba de vida',
-    'loanAceppped':'Crédito aceptado','enEsperaDispersion':'En espera dispersión',
+    'loanAceppted':'Crédito aceptado','enEsperaDispersion':'En espera dispersión',
     'inicio':'Dispersión iniciada','loanRejected':'Rechazado sistema',
     'prestamoCanceladoUsuario':'Cancelado por cliente',
     'actualizarCuentaBancaria':'Actualizar cuenta',
+}
+
+# Labels legibles para motivos de rechazo
+MOTIVO_LABEL = {
+    'dictamen_rechazado':  'Dictamen rechazado',
+    'credito_activo_zell': 'Crédito activo en Zell',
 }
 
 # ══════════════════════════════════════════════════════
@@ -116,17 +132,35 @@ def fecha_corte(periodo):
     return f"{ultimo} {MESES_CRT[t.month-1]} {t.year}"
 
 # ══════════════════════════════════════════════════════
-# PASO 1 — DESCARGAR CSV
+# PASO 1 — DESCARGAR CSV (con reintentos)
 # ══════════════════════════════════════════════════════
 
 def descargar_csv(url):
+    """Descarga el CSV con reintentos automáticos.
+    Si el servidor de Percapita está lento, espera y reintenta.
+    """
     import requests
-    log(f"Descargando CSV desde {url} ...")
-    resp = requests.get(url, timeout=60)
-    resp.raise_for_status()
-    df = pd.read_csv(StringIO(resp.text), encoding="utf-8")
-    log(f"  ✓ {len(df):,} filas descargadas")
-    return df
+    intentos_max = 3
+    timeout_seg  = 300  # 5 minutos por intento
+
+    for intento in range(1, intentos_max + 1):
+        try:
+            log(f"Descargando CSV (intento {intento}/{intentos_max}) desde {url} ...")
+            resp = requests.get(url, timeout=timeout_seg)
+            resp.raise_for_status()
+            df = pd.read_csv(StringIO(resp.text), encoding="utf-8")
+            log(f"  ✓ {len(df):,} filas descargadas")
+            return df
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError) as e:
+            log(f"  ⚠️ Intento {intento} falló: {type(e).__name__}")
+            if intento < intentos_max:
+                espera = 30 * intento  # 30s, 60s
+                log(f"     Esperando {espera}s antes de reintentar...")
+                time.sleep(espera)
+            else:
+                log(f"  ❌ Todos los intentos fallaron")
+                raise
 
 
 # ══════════════════════════════════════════════════════
@@ -256,34 +290,82 @@ def calcular_indicadores_control(bc, mes_actual, mes_anterior):
 # ══════════════════════════════════════════════════════
 
 def preparar_base(df):
+    # Mapeo extendido — ahora capturamos columnas nuevas:
+    # id_credito (dedupe), fechas de etapas, monto solicitado, motivo rechazo,
+    # estado/municipio (mapa geográfico).
     MAPEO = {
-        'Nombres':'nombres','Fecha Solicitud':'fecha_solicitud',
-        'Fecha Dispersión':'fecha_dispersion','Tipo Crédito':'tipo_crediticio',
-        'Monto Autorizado':'monto_autorizado','Estado Solicitud':'estado_solicitud',
-        'Step':'step','Estatus':'estatus','Ciudad Título':'ciudad_titulo',
-        'Título':'titulo',
+        'ID Crédito':       'id_credito',
+        'Nombres':          'nombres',
+        'Fecha Solicitud':  'fecha_solicitud',
+        'Fecha Dictamen':   'fecha_dictamen',
+        'Fecha Aceptación': 'fecha_aceptacion',
+        'Fecha Dispersión': 'fecha_dispersion',
+        'Fecha Rechazo':    'fecha_rechazo',
+        'Tipo Crédito':     'tipo_crediticio',
+        'Monto':            'monto_solicitado',
+        'Monto Autorizado': 'monto_autorizado',
+        'Estado Solicitud': 'estado_solicitud',
+        'Motivo Rechazo':   'motivo_rechazo',
+        'Step':             'step',
+        'Estatus':          'estatus',
+        'Ciudad Título':    'ciudad_titulo',
+        'Estado Residencia':'estado_residencia',
+        'Municipio':        'municipio',
+        'Título':           'titulo',
     }
     df = df.rename(columns=MAPEO)
-    for col in ['fecha_solicitud','fecha_dispersion']:
-        if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors='coerce')
 
+    # Parsear todas las fechas de ciclo de vida.
+    # IMPORTANTE: el CSV mezcla dos formatos ISO:
+    #   formato completo:   '2026-06-03T12:26:56'  (~98% de filas)
+    #   formato incompleto: '2026-06-03T12:28'     (~2% de filas, sin segundos)
+    # Sin format='mixed', pandas infiere UN solo formato y descarta el otro como NaT.
+    # Eso causaba que el reporte ignorara ~98% de los registros silenciosamente.
+    for col in ['fecha_solicitud','fecha_dictamen','fecha_aceptacion',
+                'fecha_dispersion','fecha_rechazo']:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors='coerce', format='mixed')
+
+    # Defensa contra fila de header duplicada en CSV malformado
     df = df[df['tipo_crediticio'] != 'tipo_crediticio'].copy()
+
+    # Excluir productos que no analizamos en este reporte
     df = df[~df['tipo_crediticio'].isin(['PERSONAL','RENOVACIONPERSONAL'])].copy()
+
+    # Excluir steps que son artefactos del sistema (no etapas reales)
     df = df[~df['step'].isin(['solicitudPrestamoTitulo','solicitudPrestamoPersonal'])].copy()
+
+    # Ventana de análisis
     df = df[df['fecha_solicitud'] >= '2025-08-01'].copy()
-    df = df.drop_duplicates()
+
+    # ── DEDUPLICACIÓN POR CLAVE ÚNICA REAL ──
+    # Antes: drop_duplicates() comparaba todas las columnas.
+    # Con el CSV nuevo (27 columnas, algunas mutables entre snapshots)
+    # eso dejaba pasar duplicados. Ahora deduplicamos por ID Crédito
+    # quedándonos con el snapshot más reciente.
+    if 'id_credito' in df.columns:
+        antes = len(df)
+        df = df.drop_duplicates(subset=['id_credito'], keep='last')
+        log(f"  ✓ Dedupe por ID Crédito: {antes:,} → {len(df):,} registros")
+    else:
+        # Fallback si por alguna razón no viene ID Crédito
+        df = df.drop_duplicates()
+        log(f"  ⚠️ Sin ID Crédito — usando dedupe genérico")
+
     df['mes'] = df['fecha_solicitud'].dt.to_period('M')
 
     PASO_ORDEN = {
         'crearUsuario':1,'datosPersona':2,'telefonoPersona':3,'generaCURP':4,
         'datosDomicilio':5,'datosEmpleo':6,'datosReferenciaPersonal':7,
         'evaluacionProceso':9,'medioEntrega':10,'procesoPruebaDeVida':11,
-        'loanRejected':12,'loanAceppped':13,'enEsperaDispersion':14,
+        'loanRejected':12,'loanAceppted':13,'enEsperaDispersion':14,
         'prestamoCanceladoUsuario':14,'inicio':15,
     }
     df['paso_num'] = df['step'].map(PASO_ORDEN).fillna(0)
 
+    # ── DEDUPE SECUNDARIO POR TÍTULO+TIPO ──
+    # Captura casos donde el cliente hizo varios intentos y solo uno fue exitoso.
+    # Prefiere el registro completado (creditoAperturado).
     dup_mask = df.duplicated(subset=['titulo','tipo_crediticio'], keep=False)
     df_unicos = df[~dup_mask].copy()
     elegidos = []
@@ -299,14 +381,32 @@ def preparar_base(df):
     return df.reset_index(drop=True)
 
 # ══════════════════════════════════════════════════════
-# PASO 3 — CALCULAR TaT
+# PASO 3 — CALCULAR TaT (TOTAL + SUB-ETAPAS)
 # ══════════════════════════════════════════════════════
 
 def calcular_tat(df):
-    log("  Calculando TaT hábil...")
+    """Calcula TaT total y desglosado por sub-etapas.
+
+    - tat_total:     Solicitud → Dispersión   (créditos exitosos)
+    - tat_revision:  Solicitud → Dictamen     (tiempo de evaluación crediticia)
+    - tat_operacion: Dictamen  → Dispersión   (tiempo de ejecución tras decidir)
+    - tat_rechazo:   Solicitud → Rechazo      (cuánto tardamos en rechazar)
+    """
+    log("  Calculando TaT hábil (total + sub-etapas)...")
+
     df['tat_total'] = df.apply(
         lambda r: biz_hours(r['fecha_solicitud'], r['fecha_dispersion']), axis=1)
-    log("  ✓ TaT calculado")
+
+    df['tat_revision'] = df.apply(
+        lambda r: biz_hours(r['fecha_solicitud'], r['fecha_dictamen']), axis=1)
+
+    df['tat_operacion'] = df.apply(
+        lambda r: biz_hours(r['fecha_dictamen'], r['fecha_dispersion']), axis=1)
+
+    df['tat_rechazo'] = df.apply(
+        lambda r: biz_hours(r['fecha_solicitud'], r['fecha_rechazo']), axis=1)
+
+    log("  ✓ TaT calculado (total, revisión, operación, rechazo)")
     return df
 
 # ══════════════════════════════════════════════════════
@@ -336,12 +436,10 @@ def calcular_indicadores(df):
         _hoy_check = datetime.now(_ZI('America/Mexico_City'))
 
     if _hoy_check.day <= 7:
-        # Primera semana — usar mes anterior como principal
         mes_actual   = meses[-2] if len(meses) >= 2 else meses[-1]
         mes_anterior = meses[-3] if len(meses) >= 3 else meses[-2] if len(meses) >= 2 else meses[-1]
         log(f"  📅 Día {_hoy_check.day} del mes — mostrando mes anterior completo ({mes_actual})")
     else:
-        # Día 8+ — usar mes en curso
         mes_actual   = meses[-1]
         mes_anterior = meses[-2] if len(meses) >= 2 else mes_actual
         log(f"  📅 Día {_hoy_check.day} del mes — mostrando mes en curso ({mes_actual})")
@@ -375,6 +473,37 @@ def calcular_indicadores(df):
     apr_act  = kpi_aprobacion(dm); apr_prev = kpi_aprobacion(dp)
     dia_act  = kpi_mismo_dia(dm);  dia_prev = kpi_mismo_dia(dp)
     flu_act  = kpi_flujo(dm);      flu_prev = kpi_flujo(dp)
+
+    # ── KPIs NUEVOS: sub-etapas de TaT ──
+    # Solo cuentan créditos dispersados (excluye rechazados y pendientes)
+    disp_m = dm[dm['estatus']=='creditoAperturado']
+    disp_p = dp[dp['estatus']=='creditoAperturado']
+    tat_revision_act   = tat_med(disp_m['tat_revision'])
+    tat_revision_prev  = tat_med(disp_p['tat_revision'])
+    tat_operacion_act  = tat_med(disp_m['tat_operacion'])
+    tat_operacion_prev = tat_med(disp_p['tat_operacion'])
+
+    # ── KPI NUEVO: TaT de rechazos ──
+    # Solo cuentan créditos rechazados (tienen fecha_rechazo)
+    rech_m = dm[dm['estatus'].isin(['rechazado','declinado'])]
+    rech_p = dp[dp['estatus'].isin(['rechazado','declinado'])]
+    tat_rechazo_act  = tat_med(rech_m['tat_rechazo'])
+    tat_rechazo_prev = tat_med(rech_p['tat_rechazo'])
+
+    # ── KPI NUEVO: ratio Monto Autorizado / Monto Solicitado ──
+    # Mediana del % aprobado del monto pedido (solo créditos dispersados)
+    if 'monto_solicitado' in dm.columns:
+        ratio_m = disp_m[(disp_m['monto_solicitado']>0) & disp_m['monto_autorizado'].notna()].copy()
+        ratio_m['ratio'] = (ratio_m['monto_autorizado'] / ratio_m['monto_solicitado']) * 100
+        ratio_monto_act = r1(ratio_m['ratio'].median()) if len(ratio_m) else 0.0
+        ratio_p = disp_p[(disp_p.get('monto_solicitado', pd.Series()).fillna(0)>0) & disp_p['monto_autorizado'].notna()].copy()
+        if len(ratio_p):
+            ratio_p['ratio'] = (ratio_p['monto_autorizado'] / ratio_p['monto_solicitado']) * 100
+            ratio_monto_prev = r1(ratio_p['ratio'].median())
+        else:
+            ratio_monto_prev = 0.0
+    else:
+        ratio_monto_act = ratio_monto_prev = 0.0
 
     dispersados = dm[dm['estatus']=='creditoAperturado']
     total_monto = round(float(dm['monto_autorizado'].sum()))
@@ -428,7 +557,7 @@ def calcular_indicadores(df):
     STEPS_EMBUDO = [
         'telefonoPersona','generaCURP','datosDomicilio','datosEmpleo',
         'datosReferenciaPersonal','evaluacionProceso','medioEntrega',
-        'procesoPruebaDeVida','loanAceppped','enEsperaDispersion','inicio',
+        'procesoPruebaDeVida','loanAceppted','enEsperaDispersion','inicio',
     ]
     total_emb = len(dm)
     embudo = []
@@ -452,6 +581,19 @@ def calcular_indicadores(df):
         n_r = ((rechazados['tipo_crediticio']==prod)).sum()
         if n_r > 0:
             rech_prod.append({'producto':PROD_LABEL[prod],'n':int(n_r)})
+
+    # ── NUEVO: Motivos de rechazo (top 5) ──
+    motivos_rechazo = []
+    if 'motivo_rechazo' in rechazados.columns:
+        motivos_serie = rechazados['motivo_rechazo'].dropna()
+        for motivo, n_m in motivos_serie.value_counts().head(5).items():
+            # Limpiamos motivos que vienen con cola (ej: "dictamen_rechazado, EL CLIENTE YA NO LO QUIERE")
+            motivo_clean = str(motivo).split(',')[0].strip()
+            motivos_rechazo.append({
+                'motivo': MOTIVO_LABEL.get(motivo_clean, motivo_clean),
+                'n':      int(n_m),
+                'pct':    r1(n_m / rech_total * 100) if rech_total else 0,
+            })
 
     # ── Horario ──
     dm2 = dm[dm['estatus']=='creditoAperturado'].copy()
@@ -486,7 +628,7 @@ def calcular_indicadores(df):
         })
     pend_tabla.sort(key=lambda x: x['n'], reverse=True)
 
-    # ── Ciudades ──
+    # ── Ciudades (Ciudad Título — donde está la sucursal) ──
     ciudades = []
     for ciudad, g_c in dm.groupby('ciudad_titulo'):
         if pd.isna(ciudad) or len(g_c) < 5: continue
@@ -500,6 +642,22 @@ def calcular_indicadores(df):
         })
     ciudades.sort(key=lambda x: x['n'], reverse=True)
 
+    # ── NUEVO: Demanda por Estado de Residencia ──
+    # De dónde vienen los clientes (donde viven, no donde solicitan)
+    estados_residencia = []
+    if 'estado_residencia' in dm.columns:
+        for estado, g_e in dm.groupby('estado_residencia'):
+            if pd.isna(estado) or len(g_e) < 5: continue
+            apr_e = r1(g_e[g_e['estatus']=='creditoAperturado'].shape[0]/len(g_e)*100)
+            estados_residencia.append({
+                'estado':     str(estado),
+                'n':          int(len(g_e)),
+                'aprobacion': apr_e,
+                'tat_med':    tat_med(g_e['tat_total']),
+            })
+        estados_residencia.sort(key=lambda x: x['n'], reverse=True)
+        estados_residencia = estados_residencia[:15]  # top 15
+
     D = {
         'mes_actual':              mes_largo(mes_actual),
         'mes_anterior':            mes_largo(mes_anterior),
@@ -507,6 +665,7 @@ def calcular_indicadores(df):
         'mes_anterior_corto':      mes_corto(mes_anterior),
         'fecha_corte':             fecha_corte(mes_actual),
         'hora_actualizacion':      hoy_mx.strftime('%H:%M'),
+        # KPIs existentes
         'tat_med':                 tat_act,
         'tat_anterior':            tat_prev,
         'aprobacion_pct':          apr_act,
@@ -518,18 +677,33 @@ def calcular_indicadores(df):
         'total_solicitudes':       len(dm),
         'total_dispersados':       n_disp,
         'total_monto':             total_monto,
+        # KPIs NUEVOS
+        'tat_revision_med':        tat_revision_act,
+        'tat_revision_anterior':   tat_revision_prev,
+        'tat_operacion_med':       tat_operacion_act,
+        'tat_operacion_anterior':  tat_operacion_prev,
+        'tat_rechazo_med':         tat_rechazo_act,
+        'tat_rechazo_anterior':    tat_rechazo_prev,
+        'ratio_monto_pct':         ratio_monto_act,
+        'ratio_monto_anterior':    ratio_monto_prev,
+        # Bloques existentes
         'productos':               productos,
         'dist_tat':                dist_tat,
         'embudo':                  embudo,
         'rechazos_total':          rech_total,
         'rechazos_tasa':           rech_tasa,
         'rechazos_por_producto':   rech_prod,
+        'motivos_rechazo':         motivos_rechazo,   # NUEVO
         'horario':                 horario,
         'pendientes':              pend_tabla,
         'ciudades':                ciudades,
+        'estados_residencia':      estados_residencia, # NUEVO
     }
 
-    log(f"  ✓ {mes_largo(mes_actual)} | TaT {tat_act}h | Aprobación {apr_act}% | {len(dm)} sol")
+    log(f"  ✓ {mes_largo(mes_actual)} | TaT total {tat_act}h | "
+        f"Revisión {tat_revision_act}h | Operación {tat_operacion_act}h | "
+        f"Rechazo {tat_rechazo_act}h | Aprobación {apr_act}% | "
+        f"Ratio Monto {ratio_monto_act}% | {len(dm)} sol")
     return D
 
 # ══════════════════════════════════════════════════════
