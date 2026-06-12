@@ -205,7 +205,7 @@ code{background:var(--az-fon);border:1px solid var(--borde);border-radius:3px;pa
       <thead><tr>
         <th>Producto</th><th class="num">Solicitudes</th><th>Aprobación</th>
         <th class="num">Rechazado</th><th class="num">Pendiente</th>
-        <th class="num">TaT Med</th><th class="num">TaT P90</th>
+        <th class="num">TaT Mediano</th><th class="num">TaT P90</th>
         <th class="num">Monto</th><th class="num">Δ TaT</th>
       </tr></thead>
       <tbody id="tbodyProductos"></tbody>
@@ -241,7 +241,7 @@ code{background:var(--az-fon);border:1px solid var(--borde);border-radius:3px;pa
     <div style="margin-top:12px;" class="grid-2">
       <table class="data-table">
         <thead><tr><th>Motivo</th><th class="num">N</th><th class="num">%</th></tr></thead>
-        <tbody><tr><td>Dictamen rechazado</td><td class="num bold" id="rechN">—</td><td class="num">100%</td></tr></tbody>
+        <tbody id="tbodyMotivosRech"><tr><td>Dictamen rechazado</td><td class="num bold" id="rechN">—</td><td class="num">100%</td></tr></tbody>
       </table>
       <table class="data-table">
         <thead><tr><th>Producto</th><th class="num">N</th></tr></thead>
@@ -285,7 +285,7 @@ code{background:var(--az-fon);border:1px solid var(--borde);border-radius:3px;pa
     <table class="data-table">
       <thead><tr>
         <th>Ciudad</th><th class="num">Solicitudes</th><th>Aprobación</th>
-        <th class="num bold">TaT Med (hrs)</th><th class="num">TaT P90 (hrs)</th>
+        <th class="num bold">TaT Mediano</th><th class="num">TaT P90</th>
       </tr></thead>
       <tbody id="tbodyCiudades"></tbody>
     </table>
@@ -376,439 +376,121 @@ code{background:var(--az-fon);border:1px solid var(--borde);border-radius:3px;pa
 <script>
 // ══ DATOS — inyectados automáticamente por el script de actualización ══
 const D = {
-  // Actualizado automáticamente — 30 Jun 2026 10:24
-  mes_actual: 'Junio 2026',
-  mes_anterior: 'Mayo 2026',
-  mes_actual_corto: 'Jun 26',
-  mes_anterior_corto: 'May 26',
-  fecha_corte: '30 Jun 2026',
-  hora_actualizacion: '10:24',
-  tat_med: 1.73,
-  tat_anterior: 2.15,
-  aprobacion_pct: 89.2,
-  aprobacion_anterior: 92.2,
-  mismo_dia_pct: 90.5,
-  mismo_dia_anterior: 82.8,
-  flujo_completo_pct: 89.2,
-  flujo_completo_anterior: 92.2,
-  total_solicitudes: 507,
-  total_dispersados: 452,
-  total_monto: 4420000,
-  tat_revision_med: 0.76,
-  tat_revision_anterior: 1.0,
-  tat_operacion_med: 0.38,
-  tat_operacion_anterior: 0.42,
-  tat_rechazo_med: 5.79,
-  tat_rechazo_anterior: 3.57,
-  ratio_monto_pct: 100.0,
-  ratio_monto_anterior: 100.0,
+  mes_actual:         'Abril 2026',
+  mes_anterior:       'Marzo 2026',
+  mes_actual_corto:   'Abr 26',
+  mes_anterior_corto: 'Mar 26',
+  fecha_corte:        '30 Abr 2026',
+  hora_actualizacion:  '09:10',
+  tat_med:            2.98,
+  tat_anterior:       5.03,
+  aprobacion_pct:     88.0,
+  aprobacion_anterior:91.8,
+  mismo_dia_pct:      79.0,
+  mismo_dia_anterior: 68.1,
+  flujo_completo_pct: 85.9,
+  flujo_completo_anterior: 91.0,
+  total_solicitudes:  967,
+  total_dispersados:  830,
+  total_monto:        8680000,
   productos: [
-    {
-        "label": "Título",
-        "n": 108,
-        "aprobacion": 76.9,
-        "rechazado": 7.4,
-        "pendiente": 14.8,
-        "tat_med": 2.3,
-        "tat_p90": 17.67,
-        "tat_anterior": 3.2,
-        "monto": 647500,
-        "color": "#1a5e9e"
-    },
-    {
-        "label": "Híbrido",
-        "n": 193,
-        "aprobacion": 91.2,
-        "rechazado": 0.0,
-        "pendiente": 7.3,
-        "tat_med": 0.91,
-        "tat_p90": 6.4,
-        "tat_anterior": 1.34,
-        "monto": 1162500,
-        "color": "#1e7347"
-    },
-    {
-        "label": "Reno. Título",
-        "n": 164,
-        "aprobacion": 93.9,
-        "rechazado": 0.6,
-        "pendiente": 5.5,
-        "tat_med": 2.61,
-        "tat_p90": 9.06,
-        "tat_anterior": 2.59,
-        "monto": 2227500,
-        "color": "#c85a17"
-    },
-    {
-        "label": "Reno. Híbrido",
-        "n": 41,
-        "aprobacion": 92.7,
-        "rechazado": 0.0,
-        "pendiente": 4.9,
-        "tat_med": 0.91,
-        "tat_p90": 7.37,
-        "tat_anterior": 1.1,
-        "monto": 327500,
-        "color": "#c97c00"
-    }
-],
+    {label:'Título',      n:336, aprobacion:86.6, rechazado:3.3,  pendiente:10.1, tat_med:4.83, tat_p90:21.41, tat_anterior:5.43,  monto:2960000, color:'#1a5e9e'},
+    {label:'Híbrido',     n:260, aprobacion:86.5, rechazado:0.0,  pendiente:13.5, tat_med:1.29, tat_p90:10.83, tat_anterior:1.32,  monto:1497500, color:'#1e7347'},
+    {label:'Reno. Título',n:295, aprobacion:90.8, rechazado:2.0,  pendiente:7.1,  tat_med:4.18, tat_p90:17.32, tat_anterior:10.43, monto:3642500, color:'#c85a17'},
+    {label:'Reno. Híbrido',n:76, aprobacion:88.2, rechazado:0.0,  pendiente:11.8, tat_med:1.55, tat_p90:8.28,  tat_anterior:10.87, monto:580000,  color:'#c97c00'},
+  ],
   dist_tat: [
-    {
-        "rango": "<1 hr",
-        "n": 162,
-        "pct": 35.8,
-        "color": "#00a878"
-    },
-    {
-        "rango": "1–2.5 hrs",
-        "n": 125,
-        "pct": 27.7,
-        "color": "#1a5e9e"
-    },
-    {
-        "rango": "2.5–4.5",
-        "n": 65,
-        "pct": 14.4,
-        "color": "#1e6abf"
-    },
-    {
-        "rango": "4.5–9 hrs",
-        "n": 53,
-        "pct": 11.7,
-        "color": "#3d9be8"
-    },
-    {
-        "rango": "9–18 hrs",
-        "n": 27,
-        "pct": 6.0,
-        "color": "#c97c00"
-    },
-    {
-        "rango": "18–36 hrs",
-        "n": 17,
-        "pct": 3.8,
-        "color": "#c85a17"
-    },
-    {
-        "rango": ">36 hrs",
-        "n": 3,
-        "pct": 0.7,
-        "color": "#b91c1c"
-    }
-],
+    {rango:'<1 hr',     n:178, pct:21.4, color:'#00a878'},
+    {rango:'1–2.5 hrs', n:192, pct:23.1, color:'#1a5e9e'},
+    {rango:'2.5–4.5',   n:119, pct:14.3, color:'#1e6abf'},
+    {rango:'4.5–9 hrs', n:162, pct:19.5, color:'#3d9be8'},
+    {rango:'9–18 hrs',  n:99,  pct:11.9, color:'#c97c00'},
+    {rango:'18–36 hrs', n:55,  pct:6.6,  color:'#c85a17'},
+    {rango:'>36 hrs',   n:26,  pct:3.1,  color:'#b91c1c'},
+  ],
   embudo: [
-    {
-        "paso": "Teléfono",
-        "n": 2,
-        "pct": 0.4
-    },
-    {
-        "paso": "Validación CURP",
-        "n": 10,
-        "pct": 2.0
-    },
-    {
-        "paso": "Datos empleo",
-        "n": 7,
-        "pct": 1.4
-    },
-    {
-        "paso": "Evaluación proceso",
-        "n": 8,
-        "pct": 1.6
-    },
-    {
-        "paso": "Medio de entrega",
-        "n": 2,
-        "pct": 0.4
-    },
-    {
-        "paso": "Prueba de vida",
-        "n": 12,
-        "pct": 2.4
-    },
-    {
-        "paso": "Crédito aceptado",
-        "n": 2,
-        "pct": 0.4
-    },
-    {
-        "paso": "En espera dispersión",
-        "n": 2,
-        "pct": 0.4
-    },
-    {
-        "paso": "Dispersión iniciada",
-        "n": 452,
-        "pct": 89.2
-    },
-    {
-        "paso": "Dispersado ✅",
-        "n": 452,
-        "pct": 89.2,
-        "ok": true
-    },
-    {
-        "paso": "Rechazado",
-        "n": 9,
-        "pct": 1.8,
-        "mal": true
-    },
-    {
-        "paso": "Cancelado",
-        "n": 0,
-        "pct": 0.0,
-        "mal": true
-    }
-],
-  rechazos_total: 9,
-  rechazos_tasa: 1.8,
+    {paso:'Teléfono',              n:2,   pct:0.2},
+    {paso:'Validación CURP',       n:20,  pct:2.1},
+    {paso:'Datos domicilio',       n:1,   pct:0.1},
+    {paso:'Datos empleo',          n:5,   pct:0.5},
+    {paso:'Referencias',           n:1,   pct:0.1},
+    {paso:'Evaluación proceso',    n:21,  pct:2.2},
+    {paso:'Medio de entrega',      n:3,   pct:0.3},
+    {paso:'Prueba de vida',        n:30,  pct:3.1},
+    {paso:'Crédito aceptado',      n:7,   pct:0.7},
+    {paso:'En espera dispersión',  n:6,   pct:0.6},
+    {paso:'Dispersado ✅',         n:830, pct:85.8, ok:true},
+    {paso:'Rechazado',             n:27,  pct:2.8,  mal:true},
+    {paso:'Cancelado',             n:6,   pct:0.6,  mal:true},
+  ],
+  rechazos_total: 17,
+  rechazos_tasa:  1.8,
   rechazos_por_producto: [
-    {
-        "producto": "Título",
-        "n": 8
-    },
-    {
-        "producto": "Reno. Título",
-        "n": 1
-    }
-],
-  motivos_rechazo: [
-    {
-        "motivo": "Dictamen rechazado",
-        "n": 9,
-        "pct": 100.0
-    }
-],
+    {producto:'Título',       n:11},
+    {producto:'Reno. Título', n:6},
+  ],
   horario: [
-    {
-        "franja": "09–11h",
-        "tat_med": 1.6,
-        "mismo_dia": 90.2
-    },
-    {
-        "franja": "11–13h",
-        "tat_med": 1.4,
-        "mismo_dia": 90.4
-    },
-    {
-        "franja": "13–15h",
-        "tat_med": 1.95,
-        "mismo_dia": 90.6
-    },
-    {
-        "franja": "15–17h",
-        "tat_med": 1.79,
-        "mismo_dia": 91.4
-    },
-    {
-        "franja": "17–18h",
-        "tat_med": 2.29,
-        "mismo_dia": 91.3
-    },
-    {
-        "franja": "Fuera horario",
-        "tat_med": 0.57,
-        "mismo_dia": 88.4
-    }
-],
+    {franja:'09–11h',       tat_med:2.98, mismo_dia:80.8},
+    {franja:'11–13h',       tat_med:3.17, mismo_dia:80.8},
+    {franja:'13–15h',       tat_med:3.86, mismo_dia:79.9},
+    {franja:'15–17h',       tat_med:2.17, mismo_dia:83.7},
+    {franja:'17–18h',       tat_med:2.71, mismo_dia:75.0},
+    {franja:'Fuera horario',tat_med:9.0,  mismo_dia:55.7},
+  ],
   pendientes: [
-    {
-        "paso": "procesoPruebaDeVida",
-        "label": "Prueba de vida",
-        "n": 12,
-        "pct": 29.3,
-        "med_dias": 8.0,
-        "max_dias": 11.0
-    },
-    {
-        "paso": "generaCURP",
-        "label": "Validación CURP",
-        "n": 10,
-        "pct": 24.4,
-        "med_dias": 6.0,
-        "max_dias": 10.0
-    },
-    {
-        "paso": "evaluacionProceso",
-        "label": "Evaluación proceso",
-        "n": 8,
-        "pct": 19.5,
-        "med_dias": 2.0,
-        "max_dias": 11.0
-    },
-    {
-        "paso": "datosEmpleo",
-        "label": "Datos empleo",
-        "n": 7,
-        "pct": 17.1,
-        "med_dias": 4.0,
-        "max_dias": 11.0
-    },
-    {
-        "paso": "telefonoPersona",
-        "label": "Teléfono",
-        "n": 2,
-        "pct": 4.9,
-        "med_dias": 3.0,
-        "max_dias": 4.0
-    },
-    {
-        "paso": "medioEntrega",
-        "label": "Medio de entrega",
-        "n": 2,
-        "pct": 4.9,
-        "med_dias": 5.5,
-        "max_dias": 11.0
-    }
-],
+    {paso:'procesoPruebaDeVida',      label:'Prueba de vida',        n:30, pct:30.3, med_dias:11.3, max_dias:27.6},
+    {paso:'evaluacionProceso',        label:'Evaluación proceso',    n:20, pct:20.2, med_dias:0.0,  max_dias:11.4},
+    {paso:'generaCURP',               label:'Validación CURP',       n:20, pct:20.2, med_dias:9.5,  max_dias:29.2},
+    {paso:'loanRejected',             label:'Rechazado sistema',     n:9,  pct:9.1,  med_dias:7.3,  max_dias:19.6},
+    {paso:'datosEmpleo',              label:'Datos empleo',          n:5,  pct:5.1,  med_dias:13.1, max_dias:27.3},
+    {paso:'prestamoCanceladoUsuario', label:'Cancelado por cliente', n:4,  pct:4.0,  med_dias:7.3,  max_dias:20.6},
+    {paso:'medioEntrega',             label:'Medio de entrega',      n:3,  pct:3.0,  med_dias:6.5,  max_dias:18.5},
+    {paso:'enEsperaDispersion',       label:'En espera dispersión',  n:2,  pct:2.0,  med_dias:7.9,  max_dias:15.5},
+    {paso:'inicio',                   label:'Dispersión iniciada',   n:2,  pct:2.0,  med_dias:6.5,  max_dias:12.6},
+    {paso:'telefonoPersona',          label:'Teléfono',              n:2,  pct:2.0,  med_dias:12.4, max_dias:21.5},
+  ],
   ciudades: [
-    {
-        "ciudad": "Guadalajara",
-        "n": 355,
-        "aprobacion": 88.5,
-        "tat_med": 1.88,
-        "tat_p90": 9.45
-    },
-    {
-        "ciudad": "Puebla",
-        "n": 33,
-        "aprobacion": 93.9,
-        "tat_med": 0.96,
-        "tat_p90": 7.01
-    },
-    {
-        "ciudad": "Toluca",
-        "n": 18,
-        "aprobacion": 88.9,
-        "tat_med": 1.6,
-        "tat_p90": 5.56
-    },
-    {
-        "ciudad": "Tampico",
-        "n": 16,
-        "aprobacion": 93.8,
-        "tat_med": 1.99,
-        "tat_p90": 10.77
-    },
-    {
-        "ciudad": "Cancun",
-        "n": 15,
-        "aprobacion": 80.0,
-        "tat_med": 1.09,
-        "tat_p90": 2.72
-    },
-    {
-        "ciudad": "Mérida",
-        "n": 15,
-        "aprobacion": 86.7,
-        "tat_med": 1.56,
-        "tat_p90": 7.75
-    },
-    {
-        "ciudad": "Villahermosa",
-        "n": 12,
-        "aprobacion": 91.7,
-        "tat_med": 1.12,
-        "tat_p90": 3.1
-    },
-    {
-        "ciudad": "Monclova",
-        "n": 11,
-        "aprobacion": 100.0,
-        "tat_med": 2.04,
-        "tat_p90": 7.93
-    },
-    {
-        "ciudad": "Acapulco",
-        "n": 10,
-        "aprobacion": 90.0,
-        "tat_med": 0.96,
-        "tat_p90": 4.07
-    },
-    {
-        "ciudad": "Saltillo",
-        "n": 9,
-        "aprobacion": 100.0,
-        "tat_med": 0.73,
-        "tat_p90": 6.53
-    },
-    {
-        "ciudad": "Tuxtla",
-        "n": 8,
-        "aprobacion": 75.0,
-        "tat_med": 1.59,
-        "tat_p90": 7.28
-    }
-],
-  estados_residencia: [
-    {
-        "estado": "Jalisco",
-        "n": 349,
-        "aprobacion": 90.5,
-        "tat_med": 1.9
-    },
-    {
-        "estado": "Puebla",
-        "n": 32,
-        "aprobacion": 96.9,
-        "tat_med": 0.96
-    },
-    {
-        "estado": "Coahuila de Zaragoza",
-        "n": 20,
-        "aprobacion": 100.0,
-        "tat_med": 1.98
-    },
-    {
-        "estado": "México",
-        "n": 18,
-        "aprobacion": 88.9,
-        "tat_med": 1.6
-    },
-    {
-        "estado": "Tamaulipas",
-        "n": 15,
-        "aprobacion": 100.0,
-        "tat_med": 1.99
-    },
-    {
-        "estado": "Yucatán",
-        "n": 15,
-        "aprobacion": 86.7,
-        "tat_med": 1.56
-    },
-    {
-        "estado": "Quintana Roo",
-        "n": 14,
-        "aprobacion": 85.7,
-        "tat_med": 1.09
-    },
-    {
-        "estado": "Tabasco",
-        "n": 12,
-        "aprobacion": 91.7,
-        "tat_med": 1.12
-    },
-    {
-        "estado": "Guerrero",
-        "n": 9,
-        "aprobacion": 100.0,
-        "tat_med": 0.96
-    },
-    {
-        "estado": "Chiapas",
-        "n": 8,
-        "aprobacion": 75.0,
-        "tat_med": 1.59
-    }
-],
-  control: {"total_act": 928, "total_ant": 1882, "canales_act": [{"label": "BROADCASTER", "n": 539, "pct": 58.1}, {"label": "BRIA", "n": 180, "pct": 19.4}, {"label": "Num. de atenciÃ³n", "n": 172, "pct": 18.5}, {"label": "Cliente Admin", "n": 27, "pct": 2.9}, {"label": "Cobranza", "n": 4, "pct": 0.4}, {"label": "Call Center", "n": 4, "pct": 0.4}, {"label": "LINKTREE", "n": 2, "pct": 0.2}], "canales_ant": [{"label": "BROADCASTER", "n": 896, "pct": 47.6}, {"label": "BRIA", "n": 423, "pct": 22.5}, {"label": "Num. de atenciÃ³n", "n": 372, "pct": 19.8}, {"label": "Dashboard", "n": 73, "pct": 3.9}, {"label": "Cliente Admin", "n": 53, "pct": 2.8}, {"label": "Cobranza", "n": 28, "pct": 1.5}, {"label": "LINKTREE", "n": 25, "pct": 1.3}, {"label": "Call Center", "n": 6, "pct": 0.3}, {"label": "Ticket Sistema", "n": 2, "pct": 0.1}, {"label": "CampaÃ±a Redes", "n": 1, "pct": 0.1}], "motivos_act": [{"label": "Solicitud Nuevo", "n": 652, "pct": 70.3}, {"label": "RenovaciÃ³n", "n": 109, "pct": 11.7}, {"label": "EnvÃ­o de Saldos", "n": 104, "pct": 11.2}, {"label": "Referencias de pago", "n": 44, "pct": 4.7}, {"label": "CLIENTES PABS", "n": 17, "pct": 1.8}], "resultados_act": [{"label": "Solicita InformaciÃ³n", "n": 478, "pct": 51.5}, {"label": "Apoyo a cerrar", "n": 166, "pct": 17.9}, {"label": "EnvÃ­o de Referencia", "n": 82, "pct": 8.8}, {"label": "Apoyo a solicitar", "n": 76, "pct": 8.2}, {"label": "No interesado", "n": 45, "pct": 4.8}, {"label": "No elegible", "n": 32, "pct": 3.4}, {"label": "EnvÃ­o de Saldo", "n": 28, "pct": 3.0}], "asesores": [{"asesor": "Marycruz Sanchez", "total": 264, "apoyo": 77, "pct_apoyo": 29.2}, {"asesor": "Mariana Espinosa", "total": 250, "apoyo": 31, "pct_apoyo": 12.4}, {"asesor": "Juan Carlos Martinez", "total": 194, "apoyo": 59, "pct_apoyo": 30.4}, {"asesor": "Claudia Reyes", "total": 184, "apoyo": 57, "pct_apoyo": 31.0}, {"asesor": "Diego Ramirez", "total": 36, "apoyo": 18, "pct_apoyo": 50.0}], "dashboard_metricas": {"exitoso": 0, "declinado": 0, "en_proceso": 0, "total": 0}},
-
+    {ciudad:'Guadalajara',  n:645, aprobacion:87.6, tat_med:3.42, tat_p90:18.10},
+    {ciudad:'Puebla',       n:78,  aprobacion:84.6, tat_med:4.88, tat_p90:30.04},
+    {ciudad:'Toluca',       n:52,  aprobacion:84.6, tat_med:2.55, tat_p90:9.87},
+    {ciudad:'Saltillo',     n:37,  aprobacion:89.2, tat_med:2.47, tat_p90:9.71},
+    {ciudad:'Villahermosa', n:28,  aprobacion:89.3, tat_med:2.87, tat_p90:7.42},
+    {ciudad:'Acapulco',     n:26,  aprobacion:96.2, tat_med:1.00, tat_p90:2.54},
+    {ciudad:'Tampico',      n:21,  aprobacion:85.7, tat_med:2.03, tat_p90:9.17},
+    {ciudad:'Cancun',       n:20,  aprobacion:90.0, tat_med:2.37, tat_p90:10.27},
+    {ciudad:'Monclova',     n:18,  aprobacion:94.4, tat_med:3.65, tat_p90:8.74},
+    {ciudad:'Mérida',       n:17,  aprobacion:94.1, tat_med:1.69, tat_p90:14.66},
+    {ciudad:'Tuxtla',       n:16,  aprobacion:93.8, tat_med:1.98, tat_p90:10.81},
+  ],
 };
 
 // ══ RENDERIZADO ══
 const r2 = v => Math.round(v*100)/100;
+
+// ── Formateador humano de tiempo (horas decimales → "Xh Ymin") ──
+// Convierte 0.42 → "25 min", 2.15 → "2 h 9 min", 26.5 → "1 día 2 h 30 min"
+const fmtTat = (h) => {
+  if (h === null || h === undefined || isNaN(h)) return '—';
+  if (h === 0) return '0 min';
+  const totalMin = Math.round(h * 60);
+  if (totalMin < 60) return totalMin + ' min';
+  const dias = Math.floor(totalMin / (60 * 24));
+  const horas = Math.floor((totalMin % (60 * 24)) / 60);
+  const mins = totalMin % 60;
+  const parts = [];
+  if (dias > 0) parts.push(dias + (dias === 1 ? ' día' : ' días'));
+  if (horas > 0) parts.push(horas + ' h');
+  if (mins > 0) parts.push(mins + ' min');
+  return parts.join(' ');
+};
+
+// Formateador de delta (diferencia entre dos TaT en horas decimales)
+// Devuelve el delta formateado en min/h, con signo
+const fmtTatDelta = (delta) => {
+  if (delta === 0) return '0 min';
+  const absDelta = Math.abs(delta);
+  return fmtTat(absDelta);
+};
 const fmt = v => v>=1e6 ? '$'+(v/1e6).toFixed(1)+'M' : '$'+v.toLocaleString('es-MX');
 const AZ='#1e6abf', AZC='#3d9be8', VE='#00a878', NA='#c97c00', RO='#c0392b';
 const fo = {family:"'DM Sans',system-ui,sans-serif", size:11};
@@ -839,36 +521,82 @@ document.addEventListener('DOMContentLoaded', function() {
   // ── 01 KPIs ──
   var tatDelta = r2(D.tat_med - D.tat_anterior);
   var kpis = [
-    {icon:'⏱', label:'TaT Mediano', value:D.tat_med, unit:' hrs', delta:tatDelta, sub:'Horas hábiles solicitud → dispersión', color: tatDelta<0?'verde':'rojo'},
-    {icon:'✅', label:'Tasa de Aprobación', value:D.aprobacion_pct, unit:' %', delta:r2(D.aprobacion_pct-D.aprobacion_anterior), sub:'% solicitudes que terminan en crédito', color: D.aprobacion_pct>=D.aprobacion_anterior?'verde':'rojo'},
-    {icon:'🏦', label:'Cierra Mismo Día', value:D.mismo_dia_pct, unit:' %', delta:r2(D.mismo_dia_pct-D.mismo_dia_anterior), sub:'% créditos resueltos en ≤ 9 hrs hábiles', color: D.mismo_dia_pct>=D.mismo_dia_anterior?'verde':'rojo'},
-    {icon:'🔄', label:'Flujo Completo', value:D.flujo_completo_pct, unit:' %', delta:r2(D.flujo_completo_pct-D.flujo_completo_anterior), sub:'% que llega a dispersión sin bloqueo', color: D.flujo_completo_pct>=D.flujo_completo_anterior?'verde':'rojo'},
+    {icon:'⏱', label:'TaT Mediano', valueFmt:fmtTat(D.tat_med), unit:'', delta:tatDelta, deltaFmt:fmtTatDelta(tatDelta), isTime:true, sub:'Tiempo hábil solicitud → dispersión', color: tatDelta<0?'verde':'rojo'},
+    {icon:'✅', label:'Tasa de Aprobación', valueFmt:D.aprobacion_pct, unit:' %', delta:r2(D.aprobacion_pct-D.aprobacion_anterior), sub:'% solicitudes que terminan en crédito', color: D.aprobacion_pct>=D.aprobacion_anterior?'verde':'rojo'},
+    {icon:'🏦', label:'Cierra Mismo Día', valueFmt:D.mismo_dia_pct, unit:' %', delta:r2(D.mismo_dia_pct-D.mismo_dia_anterior), sub:'% créditos resueltos en ≤ 9 hrs hábiles', color: D.mismo_dia_pct>=D.mismo_dia_anterior?'verde':'rojo'},
+    {icon:'🔄', label:'Flujo Completo', valueFmt:D.flujo_completo_pct, unit:' %', delta:r2(D.flujo_completo_pct-D.flujo_completo_anterior), sub:'% que llega a dispersión sin bloqueo', color: D.flujo_completo_pct>=D.flujo_completo_anterior?'verde':'rojo'},
   ];
   var kg = document.getElementById('kpiGrid');
   kpis.forEach(function(k) {
     var dClass = k.delta<0&&k.label==='TaT Mediano'?'mejor':k.delta>0&&k.label==='TaT Mediano'?'peor':k.delta>=0?'mejor':'peor';
     var dSign  = k.delta>0?'▲ +':'▼ ';
-    kg.innerHTML += '<div class="kpi-card '+k.color+'"><div class="kpi-icon">'+k.icon+'</div><div class="kpi-label">'+k.label+'</div><div class="kpi-value">'+k.value+'<span class="kpi-unit">'+k.unit+'</span></div><div class="kpi-delta '+dClass+'">'+dSign+Math.abs(k.delta)+k.unit+' vs '+D.mes_anterior+'</div><div class="kpi-sub">'+k.sub+'</div></div>';
+    var deltaTxt = k.isTime ? (dSign + k.deltaFmt) : (dSign + Math.abs(k.delta) + k.unit);
+    kg.innerHTML += '<div class="kpi-card '+k.color+'"><div class="kpi-icon">'+k.icon+'</div><div class="kpi-label">'+k.label+'</div><div class="kpi-value">'+k.valueFmt+'<span class="kpi-unit">'+k.unit+'</span></div><div class="kpi-delta '+dClass+'">'+deltaTxt+' vs '+D.mes_anterior+'</div><div class="kpi-sub">'+k.sub+'</div></div>';
   });
 
   var tatMejora = Math.round((1-D.tat_med/D.tat_anterior)*100);
-  document.getElementById('callout01').innerHTML = '<strong>'+D.mes_actual+':</strong> '+D.total_solicitudes.toLocaleString('es-MX')+' solicitudes · '+fmt(D.total_monto)+' colocados. TaT '+D.tat_med+' hrs — <strong>'+tatMejora+'% más rápido que '+D.mes_anterior+'</strong>. Flujo completo: '+D.flujo_completo_pct+'%.';
+  document.getElementById('callout01').innerHTML = '<strong>'+D.mes_actual+':</strong> '+D.total_solicitudes.toLocaleString('es-MX')+' solicitudes · '+fmt(D.total_monto)+' colocados. TaT '+fmtTat(D.tat_med)+' — <strong>'+tatMejora+'% más rápido que '+D.mes_anterior+'</strong>. Flujo completo: '+D.flujo_completo_pct+'%.';
+
+  // ── BLOQUE NUEVO: TaT desglosado por sub-etapas ──
+  if (D.tat_revision_med !== undefined && D.tat_revision_med > 0) {
+    var subEtapas = '<div style="margin-top:14px;padding:14px 16px;background:var(--az-pal);border-radius:8px;border:1px solid var(--borde);">' +
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--az-pri);margin-bottom:10px;">⏱ TaT Desglosado por Etapa</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">' +
+      // Revisión
+      '<div style="background:#fff;border-radius:6px;padding:10px 12px;border-left:3px solid var(--az-med);">' +
+        '<div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:.05em;">Revisión</div>' +
+        '<div style="font-family:Bebas Neue;font-size:22px;color:var(--az-pri);line-height:1.1;">'+fmtTat(D.tat_revision_med)+'</div>' +
+        '<div style="font-size:10px;color:var(--gris);">Solicitud → Dictamen · prev: '+fmtTat(D.tat_revision_anterior)+'</div>' +
+      '</div>' +
+      // Operación
+      '<div style="background:#fff;border-radius:6px;padding:10px 12px;border-left:3px solid var(--verde);">' +
+        '<div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:.05em;">Operación</div>' +
+        '<div style="font-family:Bebas Neue;font-size:22px;color:var(--az-pri);line-height:1.1;">'+fmtTat(D.tat_operacion_med)+'</div>' +
+        '<div style="font-size:10px;color:var(--gris);">Dictamen → Dispersión · prev: '+fmtTat(D.tat_operacion_anterior)+'</div>' +
+      '</div>' +
+      // Rechazo
+      '<div style="background:#fff;border-radius:6px;padding:10px 12px;border-left:3px solid var(--naranja);">' +
+        '<div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:.05em;">Tiempo a Rechazo</div>' +
+        '<div style="font-family:Bebas Neue;font-size:22px;color:var(--az-pri);line-height:1.1;">'+fmtTat(D.tat_rechazo_med)+'</div>' +
+        '<div style="font-size:10px;color:var(--gris);">Solicitud → Rechazo · prev: '+fmtTat(D.tat_rechazo_anterior)+'</div>' +
+      '</div>' +
+      '</div>' +
+      '<div style="margin-top:10px;font-size:11px;color:var(--gris);font-style:italic;">' +
+        'Revisión + Operación ≈ TaT total. El desglose muestra dónde se concentra el tiempo del proceso.' +
+      '</div>' +
+    '</div>';
+    document.getElementById('callout01').insertAdjacentHTML('afterend', subEtapas);
+  }
+
+  // ── BLOQUE NUEVO: Ratio Monto Autorizado / Solicitado ──
+  if (D.ratio_monto_pct !== undefined && D.ratio_monto_pct > 0) {
+    var ratioDelta = r2(D.ratio_monto_pct - (D.ratio_monto_anterior || 0));
+    var ratioColor = D.ratio_monto_pct >= 95 ? 'green' : (D.ratio_monto_pct >= 80 ? 'blue' : 'yellow');
+    var ratioBlock = '<div class="callout '+ratioColor+'" style="margin-top:10px;">' +
+      '<strong>💰 Ratio Monto Aprobado / Solicitado:</strong> ' +
+      '<strong>'+D.ratio_monto_pct+'%</strong> (mediana) — ' +
+      'de cada $100 que el cliente solicita, autorizamos $'+Math.round(D.ratio_monto_pct)+'. ' +
+      'Mes anterior: '+D.ratio_monto_anterior+'%.' +
+    '</div>';
+    document.getElementById('callout01').insertAdjacentHTML('afterend', ratioBlock);
+  }
 
   // ── 02 Tabla mejora ──
   var metricas = [
-    {cod:'M1-TAT',   label:'TaT Mediano',         act:D.tat_med+' hrs',           ant:D.tat_anterior+' hrs',           delta:tatDelta,                                          invert:true},
-    {cod:'M2-APROB', label:'Tasa de Aprobación',   act:D.aprobacion_pct+' %',      ant:D.aprobacion_anterior+' %',      delta:r2(D.aprobacion_pct-D.aprobacion_anterior),        invert:false},
-    {cod:'M3-DIAOP', label:'Cierra Mismo Día',     act:D.mismo_dia_pct+' %',       ant:D.mismo_dia_anterior+' %',       delta:r2(D.mismo_dia_pct-D.mismo_dia_anterior),          invert:false},
-    {cod:'M4-FLUJO', label:'Flujo Completo',       act:D.flujo_completo_pct+' %',  ant:D.flujo_completo_anterior+' %',  delta:r2(D.flujo_completo_pct-D.flujo_completo_anterior),invert:false},
+    {cod:'M1-TAT',   label:'TaT Mediano',         act:fmtTat(D.tat_med),          ant:fmtTat(D.tat_anterior),          delta:tatDelta,                                          isTime:true,  invert:true},
+    {cod:'M2-APROB', label:'Tasa de Aprobación',   act:D.aprobacion_pct+' %',      ant:D.aprobacion_anterior+' %',      delta:r2(D.aprobacion_pct-D.aprobacion_anterior),        isTime:false, invert:false},
+    {cod:'M3-DIAOP', label:'Cierra Mismo Día',     act:D.mismo_dia_pct+' %',       ant:D.mismo_dia_anterior+' %',       delta:r2(D.mismo_dia_pct-D.mismo_dia_anterior),          isTime:false, invert:false},
+    {cod:'M4-FLUJO', label:'Flujo Completo',       act:D.flujo_completo_pct+' %',  ant:D.flujo_completo_anterior+' %',  delta:r2(D.flujo_completo_pct-D.flujo_completo_anterior),isTime:false, invert:false},
   ];
   var tb = document.getElementById('tbodyMejora');
   metricas.forEach(function(m) {
     var mejora = m.invert ? m.delta<0 : m.delta>0;
     var badge  = mejora ? "<span class='verde-badge'>✓ Mejora</span>" : "<span class='rojo-badge'>↓ A mejorar</span>";
     var dc     = mejora ? 'mejor' : 'peor';
-    var sign   = m.delta>0?'+':'';
+    var sign   = m.delta>0?'+':'−';
+    var deltaTxt = m.isTime ? (sign+' '+fmtTatDelta(m.delta)) : (sign+Math.abs(m.delta));
     var tr = document.createElement('tr');
-    tr.innerHTML = "<td><code>"+m.cod+"</code></td><td>"+m.label+"</td><td class='num bold'>"+m.act+"</td><td class='num'>"+m.ant+"</td><td>"+badge+"</td><td class='num "+dc+"'>"+sign+m.delta+"</td>";
+    tr.innerHTML = "<td><code>"+m.cod+"</code></td><td>"+m.label+"</td><td class='num bold'>"+m.act+"</td><td class='num'>"+m.ant+"</td><td>"+badge+"</td><td class='num "+dc+"'>"+deltaTxt+"</td>";
     tb.appendChild(tr);
   });
 
@@ -882,7 +610,11 @@ document.addEventListener('DOMContentLoaded', function() {
           return {label:p.label, data:[p.tat_anterior, p.tat_med], borderColor:p.color, backgroundColor:p.color+'33', tension:.4, pointRadius:6, borderWidth:2};
         })
       },
-      options:{...bs, plugins:{...bs.plugins, legend:{display:true,labels:{font:fo,boxWidth:10}}, title:tt('TaT Mediano por Producto: '+D.mes_anterior+' → '+D.mes_actual+' (hrs)')}}
+      options:{...bs, plugins:{...bs.plugins,
+        legend:{display:true,labels:{font:fo,boxWidth:10}},
+        title:tt('TaT Mediano por Producto: '+D.mes_anterior+' → '+D.mes_actual),
+        tooltip:{titleFont:fo,bodyFont:fo, callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtTat(ctx.parsed.y);}}}
+      }}}
     });
   } catch(e) { console.warn('mProdComp:', e.message); }
 
@@ -893,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var dc    = delta<0?'mejor':'peor';
     var dSign = delta<0?'▼ ':'▲ +';
     var tr = document.createElement('tr');
-    tr.innerHTML = "<td><span class='prod-badge' style='background:"+p.color+"22;color:"+p.color+";border:1px solid "+p.color+"44'>"+p.label+"</span></td><td class='num'>"+p.n+"</td><td class='num'><div class='bar-wrap'><div class='bar-fill' style='width:"+p.aprobacion+"%;background:"+p.color+"'></div><span>"+p.aprobacion+"%</span></div></td><td class='num'>"+p.rechazado+"%</td><td class='num'>"+p.pendiente+"%</td><td class='num bold'>"+p.tat_med+"</td><td class='num'>"+p.tat_p90+"</td><td class='num'>"+fmt(p.monto)+"</td><td class='num "+dc+"'>"+dSign+Math.abs(delta)+"h</td>";
+    tr.innerHTML = "<td><span class='prod-badge' style='background:"+p.color+"22;color:"+p.color+";border:1px solid "+p.color+"44'>"+p.label+"</span></td><td class='num'>"+p.n+"</td><td class='num'><div class='bar-wrap'><div class='bar-fill' style='width:"+p.aprobacion+"%;background:"+p.color+"'></div><span>"+p.aprobacion+"%</span></div></td><td class='num'>"+p.rechazado+"%</td><td class='num'>"+p.pendiente+"%</td><td class='num bold'>"+fmtTat(p.tat_med)+"</td><td class='num'>"+fmtTat(p.tat_p90)+"</td><td class='num'>"+fmt(p.monto)+"</td><td class='num "+dc+"'>"+dSign+fmtTatDelta(delta)+"</td>";
     tbP.appendChild(tr);
   });
 
@@ -910,7 +642,10 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(document.getElementById('mProdTaT'), {
       type:'bar',
       data:{labels:D.productos.map(function(p){return p.label;}), datasets:[{data:D.productos.map(function(p){return p.tat_med;}), backgroundColor:D.productos.map(function(p){return p.color+'bb';}), borderColor:D.productos.map(function(p){return p.color;}), borderWidth:2, borderRadius:4}]},
-      options:{...bs, plugins:{...bs.plugins, title:tt('TaT Mediano por Producto — '+D.mes_actual+' (hrs)')}}
+      options:{...bs, plugins:{...bs.plugins,
+        title:tt('TaT Mediano por Producto — '+D.mes_actual),
+        tooltip:{titleFont:fo,bodyFont:fo, callbacks:{label:function(ctx){return fmtTat(ctx.parsed.y);}}}
+      }}}
     });
   } catch(e) { console.warn('mProdTaT:', e.message); }
 
@@ -942,8 +677,21 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ── 06 Rechazos ──
-  document.getElementById('callout06').innerHTML = 'Total rechazos '+D.mes_actual+': <strong>'+D.rechazos_total+'</strong> · Tasa: '+D.rechazos_tasa+'% · 100% por dictamen rechazado';
-  document.getElementById('rechN').textContent = D.rechazos_total;
+  document.getElementById('callout06').innerHTML = 'Total rechazos '+D.mes_actual+': <strong>'+D.rechazos_total+'</strong> · Tasa: '+D.rechazos_tasa+'%';
+
+  // Motivos de rechazo — usa D.motivos_rechazo si está disponible, sino fallback
+  var tbMot = document.getElementById('tbodyMotivosRech');
+  if (D.motivos_rechazo && D.motivos_rechazo.length > 0) {
+    tbMot.innerHTML = '';
+    D.motivos_rechazo.forEach(function(m) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = "<td>"+m.motivo+"</td><td class='num bold'>"+m.n+"</td><td class='num'>"+m.pct+"%</td>";
+      tbMot.appendChild(tr);
+    });
+  } else {
+    document.getElementById('rechN').textContent = D.rechazos_total;
+  }
+
   var tbR = document.getElementById('tbodyRechProd');
   D.rechazos_por_producto.forEach(function(r) {
     var tr = document.createElement('tr');
@@ -963,7 +711,10 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(document.getElementById('mHorTaT'), {
       type:'bar',
       data:{labels:hL, datasets:[{data:hT, backgroundColor:hL.map(function(l){return l.includes('Fuera')?RO+'88':AZC+'88';}), borderColor:hL.map(function(l){return l.includes('Fuera')?RO:AZ;}), borderWidth:2, borderRadius:4}]},
-      options:{...bs, plugins:{...bs.plugins, title:tt('TaT Mediano por Franja Horaria (hrs)')}}
+      options:{...bs, plugins:{...bs.plugins,
+        title:tt('TaT Mediano por Franja Horaria'),
+        tooltip:{titleFont:fo,bodyFont:fo, callbacks:{label:function(ctx){return fmtTat(ctx.parsed.y);}}}
+      }}}
     });
   } catch(e) { console.warn('mHorTaT:', e.message); }
 
@@ -991,9 +742,44 @@ document.addEventListener('DOMContentLoaded', function() {
   var tbC = document.getElementById('tbodyCiudades');
   D.ciudades.forEach(function(c) {
     var tr = document.createElement('tr');
-    tr.innerHTML = "<td>"+c.ciudad+"</td><td class='num'>"+c.n+"</td><td class='num'><div class='bar-wrap'><div class='bar-fill' style='width:"+c.aprobacion+"%;background:#1e6abf'></div><span>"+c.aprobacion+"%</span></div></td><td class='num bold'>"+c.tat_med+"</td><td class='num'>"+c.tat_p90+"</td>";
+    tr.innerHTML = "<td>"+c.ciudad+"</td><td class='num'>"+c.n+"</td><td class='num'><div class='bar-wrap'><div class='bar-fill' style='width:"+c.aprobacion+"%;background:#1e6abf'></div><span>"+c.aprobacion+"%</span></div></td><td class='num bold'>"+fmtTat(c.tat_med)+"</td><td class='num'>"+fmtTat(c.tat_p90)+"</td>";
     tbC.appendChild(tr);
   });
+
+  // ── BLOQUE NUEVO: Estados de Residencia (demanda por estado) ──
+  if (D.estados_residencia && D.estados_residencia.length > 0) {
+    var seccionEstados = document.createElement('div');
+    seccionEstados.className = 'section';
+    seccionEstados.id = 'm10b';
+    seccionEstados.innerHTML =
+      '<div class="section-header"><span class="section-num">9b</span><span class="section-title">Demanda por Estado de Residencia — '+D.mes_actual+'</span></div>' +
+      '<div class="section-body">' +
+        '<div class="callout blue">' +
+          'Distribución geográfica de la demanda real (estado donde reside el cliente, no donde se sucursalizó). Top '+D.estados_residencia.length+' estados con al menos 5 solicitudes.' +
+        '</div>' +
+        '<table class="data-table" style="margin-top:12px;">' +
+          '<thead><tr><th>Estado</th><th class="num">Solicitudes</th><th>% del Total</th><th>Aprobación</th><th class="num">TaT Mediano</th></tr></thead>' +
+          '<tbody id="tbodyEstados"></tbody>' +
+        '</table>' +
+      '</div>';
+    // Insertar después de la sección de ciudades (m10)
+    var secCiudades = document.getElementById('m10');
+    secCiudades.parentNode.insertBefore(seccionEstados, secCiudades.nextSibling);
+
+    var totalEstados = D.estados_residencia.reduce(function(s,e){return s+e.n;},0);
+    var tbE = document.getElementById('tbodyEstados');
+    D.estados_residencia.forEach(function(e) {
+      var pct = totalEstados ? Math.round(e.n/totalEstados*1000)/10 : 0;
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        "<td>"+e.estado+"</td>" +
+        "<td class='num'>"+e.n+"</td>" +
+        "<td class='num'>"+pct+"%</td>" +
+        "<td class='num'><div class='bar-wrap'><div class='bar-fill' style='width:"+e.aprobacion+"%;background:var(--verde)'></div><span>"+e.aprobacion+"%</span></div></td>" +
+        "<td class='num bold'>"+fmtTat(e.tat_med)+"</td>";
+      tbE.appendChild(tr);
+    });
+  }
 
   // ── Metodología ──
   document.getElementById('methodNote').innerHTML = '<strong>Corte:</strong> '+D.fecha_corte+' · <strong>Periodo:</strong> Solicitudes de '+D.mes_actual+'.<br><strong>Comparativa:</strong> '+D.mes_anterior+' como mes de referencia para todos los deltas.<br><strong>Productos incluidos:</strong> Título, Híbrido, Reno. Título, Reno. Híbrido. Excluidos: Personal, Reno. Personal.<br><strong>Horario hábil:</strong> Lun–Vie 9:00–18:00 h, sin festivos MX · <strong>Estadístico central:</strong> Mediana (robusta ante valores atípicos).';
