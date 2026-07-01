@@ -172,13 +172,17 @@ SHEET_ID = os.environ.get('SHEET_ID', '11fk_9Vl8CBNVW1cDtZL5GEOjuV9VM7K8dugi5rTi
 def descargar_base_control():
     """Descarga la Base de Control desde Google Sheets como CSV."""
     import requests
-    from io import StringIO
+    from io import BytesIO
     url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRJ6r-1yEdDh-ZwYa6WiQuiYSyaq4mqEfWw1Zhez8ERhzIOYvK2teCKJMs8DVdD1O0JAPMTUU3bpaI/pub?gid=1318178910&single=true&output=csv"
     log("Descargando Base de Control desde Google Sheets...")
     try:
         resp = requests.get(url, timeout=30)
         resp.raise_for_status()
-        df = pd.read_csv(StringIO(resp.text), encoding='utf-8')
+        # requests adivina la codificación de las cabeceras HTTP; cuando el
+        # servidor no declara charset, cae a ISO-8859-1 y los acentos UTF-8
+        # de resp.text quedan mal decodificados (ej. "Atención" -> "AtenciÃ³n").
+        # Se decodifica directo desde los bytes crudos para evitar eso.
+        df = pd.read_csv(BytesIO(resp.content), encoding='utf-8')
 
         # Limpiar nombres de columnas (quitar espacios)
         df.columns = df.columns.str.strip()
