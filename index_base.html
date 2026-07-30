@@ -376,27 +376,27 @@ code{background:var(--az-fon);border:1px solid var(--borde);border-radius:3px;pa
 <script>
 // ══ DATOS — inyectados automáticamente por el script de actualización ══
 const D = {
-  // Actualizado automáticamente — 31 Jul 2026 09:12
+  // Actualizado automáticamente — 31 Jul 2026 09:16
   mes_actual: 'Julio 2026',
   mes_anterior: 'Junio 2026',
   mes_actual_corto: 'Jul 26',
   mes_anterior_corto: 'Jun 26',
   fecha_corte: '31 Jul 2026',
-  hora_actualizacion: '09:12',
-  tat_med: 1.92,
+  hora_actualizacion: '09:16',
+  tat_med: 1.86,
   tat_anterior: 2.12,
-  aprobacion_pct: 91.8,
+  aprobacion_pct: 91.5,
   aprobacion_anterior: 93.2,
-  mismo_dia_pct: 87.7,
+  mismo_dia_pct: 88.1,
   mismo_dia_anterior: 85.0,
-  flujo_completo_pct: 91.8,
+  flujo_completo_pct: 91.5,
   flujo_completo_anterior: 93.2,
-  total_solicitudes: 875,
-  total_dispersados: 803,
-  total_monto: 8020000,
-  tat_revision_med: 0.92,
+  total_solicitudes: 915,
+  total_dispersados: 837,
+  total_monto: 8365000,
+  tat_revision_med: 0.9,
   tat_revision_anterior: 0.97,
-  tat_operacion_med: 0.45,
+  tat_operacion_med: 0.44,
   tat_operacion_anterior: 0.57,
   tat_rechazo_med: 1.32,
   tat_rechazo_anterior: 6.77,
@@ -405,153 +405,153 @@ const D = {
   productos: [
     {
         "label": "Título",
-        "n": 205,
-        "aprobacion": 84.4,
-        "rechazado": 3.9,
-        "pendiente": 9.8,
-        "tat_med": 2.98,
-        "tat_p90": 15.74,
+        "n": 214,
+        "aprobacion": 83.6,
+        "rechazado": 3.7,
+        "pendiente": 9.3,
+        "tat_med": 2.82,
+        "tat_p90": 15.81,
         "tat_anterior": 3.08,
-        "monto": 1282500,
+        "monto": 1325000,
         "color": "#1a5e9e"
     },
     {
         "label": "Híbrido",
-        "n": 179,
-        "aprobacion": 91.1,
+        "n": 186,
+        "aprobacion": 90.9,
         "rechazado": 0.0,
-        "pendiente": 8.4,
-        "tat_med": 1.17,
-        "tat_p90": 9.67,
+        "pendiente": 8.6,
+        "tat_med": 1.12,
+        "tat_p90": 9.27,
         "tat_anterior": 1.33,
-        "monto": 1100000,
+        "monto": 1142500,
         "color": "#1e7347"
     },
     {
         "label": "Reno. Título",
-        "n": 335,
-        "aprobacion": 94.6,
+        "n": 357,
+        "aprobacion": 94.1,
         "rechazado": 0.6,
-        "pendiente": 4.5,
-        "tat_med": 2.35,
-        "tat_p90": 9.57,
+        "pendiente": 5.0,
+        "tat_med": 2.26,
+        "tat_p90": 9.28,
         "tat_anterior": 2.78,
-        "monto": 4227500,
+        "monto": 4442500,
         "color": "#c85a17"
     },
     {
         "label": "Reno. Híbrido",
-        "n": 155,
-        "aprobacion": 96.1,
+        "n": 157,
+        "aprobacion": 96.8,
         "rechazado": 1.3,
         "pendiente": 1.3,
-        "tat_med": 1.15,
-        "tat_p90": 5.94,
+        "tat_med": 1.14,
+        "tat_p90": 5.82,
         "tat_anterior": 1.53,
-        "monto": 1320000,
+        "monto": 1345000,
         "color": "#c97c00"
     }
 ],
   dist_tat: [
     {
         "rango": "<1 hr",
-        "n": 227,
-        "pct": 28.3,
+        "n": 243,
+        "pct": 29.0,
         "color": "#00a878"
     },
     {
         "rango": "1–2.5 hrs",
-        "n": 246,
-        "pct": 30.6,
+        "n": 255,
+        "pct": 30.5,
         "color": "#1a5e9e"
     },
     {
         "rango": "2.5–4.5",
-        "n": 111,
-        "pct": 13.8,
+        "n": 117,
+        "pct": 14.0,
         "color": "#1e6abf"
     },
     {
         "rango": "4.5–9 hrs",
-        "n": 118,
-        "pct": 14.7,
+        "n": 120,
+        "pct": 14.3,
         "color": "#3d9be8"
     },
     {
         "rango": "9–18 hrs",
         "n": 64,
-        "pct": 8.0,
+        "pct": 7.6,
         "color": "#c97c00"
     },
     {
         "rango": "18–36 hrs",
         "n": 27,
-        "pct": 3.4,
+        "pct": 3.2,
         "color": "#c85a17"
     },
     {
         "rango": ">36 hrs",
-        "n": 10,
-        "pct": 1.2,
+        "n": 11,
+        "pct": 1.3,
         "color": "#b91c1c"
     }
 ],
   embudo: [
     {
         "paso": "Teléfono",
-        "n": 7,
-        "pct": 0.8
-    },
-    {
-        "paso": "Validación CURP",
-        "n": 10,
-        "pct": 1.1
-    },
-    {
-        "paso": "Datos empleo",
-        "n": 14,
-        "pct": 1.6
-    },
-    {
-        "paso": "Evaluación proceso",
         "n": 6,
         "pct": 0.7
     },
     {
+        "paso": "Validación CURP",
+        "n": 11,
+        "pct": 1.2
+    },
+    {
+        "paso": "Datos empleo",
+        "n": 16,
+        "pct": 1.7
+    },
+    {
+        "paso": "Evaluación proceso",
+        "n": 5,
+        "pct": 0.5
+    },
+    {
         "paso": "Medio de entrega",
         "n": 5,
-        "pct": 0.6
+        "pct": 0.5
     },
     {
         "paso": "Prueba de vida",
-        "n": 11,
+        "n": 12,
         "pct": 1.3
     },
     {
         "paso": "Crédito aceptado",
-        "n": 2,
-        "pct": 0.2
+        "n": 1,
+        "pct": 0.1
     },
     {
         "paso": "En espera dispersión",
-        "n": 3,
-        "pct": 0.3
+        "n": 5,
+        "pct": 0.5
     },
     {
         "paso": "Dispersión iniciada",
-        "n": 803,
-        "pct": 91.8
+        "n": 837,
+        "pct": 91.5
     },
     {
         "paso": "Dispersado ✅",
-        "n": 803,
-        "pct": 91.8,
+        "n": 837,
+        "pct": 91.5,
         "ok": true
     },
     {
         "paso": "Rechazado",
         "n": 12,
-        "pct": 1.4,
+        "pct": 1.3,
         "mal": true
     },
     {
@@ -562,7 +562,7 @@ const D = {
     }
 ],
   rechazos_total: 12,
-  rechazos_tasa: 1.4,
+  rechazos_tasa: 1.3,
   rechazos_por_producto: [
     {
         "producto": "Título",
@@ -588,98 +588,98 @@ const D = {
     {
         "franja": "09–11h",
         "tat_med": 1.99,
-        "mismo_dia": 91.0
+        "mismo_dia": 91.3
     },
     {
         "franja": "11–13h",
-        "tat_med": 1.49,
-        "mismo_dia": 91.0
+        "tat_med": 1.54,
+        "mismo_dia": 90.7
     },
     {
         "franja": "13–15h",
-        "tat_med": 1.92,
-        "mismo_dia": 87.7
+        "tat_med": 1.89,
+        "mismo_dia": 88.3
     },
     {
         "franja": "15–17h",
-        "tat_med": 2.3,
-        "mismo_dia": 84.3
+        "tat_med": 2.13,
+        "mismo_dia": 84.9
     },
     {
         "franja": "17–18h",
         "tat_med": 1.62,
-        "mismo_dia": 85.5
+        "mismo_dia": 86.4
     },
     {
         "franja": "Fuera horario",
-        "tat_med": 2.74,
-        "mismo_dia": 76.9
+        "tat_med": 2.09,
+        "mismo_dia": 78.0
     }
 ],
   pendientes: [
     {
         "paso": "datosEmpleo",
         "label": "Datos empleo",
-        "n": 14,
-        "pct": 26.9,
+        "n": 16,
+        "pct": 28.6,
         "med_dias": 7.0,
-        "max_dias": 19.0
+        "max_dias": 20.0
     },
     {
         "paso": "procesoPruebaDeVida",
         "label": "Prueba de vida",
-        "n": 11,
-        "pct": 21.2,
-        "med_dias": 13.0,
-        "max_dias": 26.0
+        "n": 12,
+        "pct": 21.4,
+        "med_dias": 12.0,
+        "max_dias": 27.0
     },
     {
         "paso": "generaCURP",
         "label": "Validación CURP",
-        "n": 10,
-        "pct": 19.2,
-        "med_dias": 15.0,
-        "max_dias": 22.0
+        "n": 11,
+        "pct": 19.6,
+        "med_dias": 16.0,
+        "max_dias": 23.0
     },
     {
         "paso": "telefonoPersona",
         "label": "Teléfono",
-        "n": 7,
-        "pct": 13.5,
-        "med_dias": 20.0,
-        "max_dias": 27.0
+        "n": 6,
+        "pct": 10.7,
+        "med_dias": 22.0,
+        "max_dias": 28.0
     },
     {
         "paso": "evaluacionProceso",
         "label": "Evaluación proceso",
         "n": 5,
-        "pct": 9.6,
-        "med_dias": 1.0,
-        "max_dias": 14.0
+        "pct": 8.9,
+        "med_dias": 2.0,
+        "max_dias": 15.0
     },
     {
         "paso": "medioEntrega",
         "label": "Medio de entrega",
         "n": 5,
-        "pct": 9.6,
-        "med_dias": 14.0,
-        "max_dias": 27.0
+        "pct": 8.9,
+        "med_dias": 15.0,
+        "max_dias": 28.0
     }
 ],
   ciudades: [
     {
         "ciudad": "Guadalajara",
-        "n": 594,
-        "aprobacion": 91.8,
-        "tat_med": 1.94,
-        "tat_p90": 9.97
+        "n": 624,
+        "aprobacion": 91.3,
+        "tat_med": 1.9,
+        "tat_p90": 9.59
     },
     {
         "ciudad": "Puebla",
-        "n": 61,
-        "aprobacion": 93.4,
-        "tat_med": 2.09,
-        "tat_p90": 9.35
+        "n": 63,
+        "aprobacion": 92.1,
+        "tat_med": 2.11,
+        "tat_p90": 9.26
     },
     {
         "ciudad": "Toluca",
@@ -697,45 +697,45 @@ const D = {
     },
     {
         "ciudad": "Tampico",
-        "n": 25,
-        "aprobacion": 100.0,
+        "n": 26,
+        "aprobacion": 96.2,
         "tat_med": 1.61,
         "tat_p90": 5.13
     },
     {
+        "ciudad": "Monclova",
+        "n": 23,
+        "aprobacion": 91.3,
+        "tat_med": 1.67,
+        "tat_p90": 10.16
+    },
+    {
         "ciudad": "Villahermosa",
-        "n": 22,
-        "aprobacion": 95.5,
-        "tat_med": 1.32,
-        "tat_p90": 16.06
+        "n": 23,
+        "aprobacion": 95.7,
+        "tat_med": 1.29,
+        "tat_p90": 15.37
     },
     {
         "ciudad": "Acapulco",
-        "n": 20,
-        "aprobacion": 95.0,
-        "tat_med": 1.36,
-        "tat_p90": 8.6
-    },
-    {
-        "ciudad": "Monclova",
-        "n": 20,
-        "aprobacion": 90.0,
-        "tat_med": 1.92,
-        "tat_p90": 10.57
+        "n": 21,
+        "aprobacion": 95.2,
+        "tat_med": 1.2,
+        "tat_p90": 8.45
     },
     {
         "ciudad": "Saltillo",
         "n": 17,
-        "aprobacion": 88.2,
-        "tat_med": 3.47,
-        "tat_p90": 22.81
+        "aprobacion": 94.1,
+        "tat_med": 3.56,
+        "tat_p90": 22.79
     },
     {
         "ciudad": "Mérida",
-        "n": 15,
-        "aprobacion": 86.7,
-        "tat_med": 2.75,
-        "tat_p90": 6.67
+        "n": 16,
+        "aprobacion": 87.5,
+        "tat_med": 2.65,
+        "tat_p90": 6.46
     },
     {
         "ciudad": "Tuxtla",
@@ -746,24 +746,24 @@ const D = {
     },
     {
         "ciudad": "Cuernavaca",
-        "n": 7,
+        "n": 8,
         "aprobacion": 100.0,
         "tat_med": 0.82,
-        "tat_p90": 5.71
+        "tat_p90": 5.5
     }
 ],
   estados_residencia: [
     {
         "estado": "Jalisco",
-        "n": 589,
-        "aprobacion": 92.7,
-        "tat_med": 1.93
+        "n": 618,
+        "aprobacion": 92.4,
+        "tat_med": 1.89
     },
     {
         "estado": "Puebla",
-        "n": 59,
-        "aprobacion": 96.6,
-        "tat_med": 2.09
+        "n": 61,
+        "aprobacion": 95.1,
+        "tat_med": 2.11
     },
     {
         "estado": "México",
@@ -773,8 +773,8 @@ const D = {
     },
     {
         "estado": "Coahuila de Zaragoza",
-        "n": 32,
-        "aprobacion": 93.8,
+        "n": 36,
+        "aprobacion": 94.4,
         "tat_med": 2.93
     },
     {
@@ -785,27 +785,27 @@ const D = {
     },
     {
         "estado": "Tamaulipas",
-        "n": 24,
-        "aprobacion": 100.0,
+        "n": 25,
+        "aprobacion": 96.0,
         "tat_med": 1.54
     },
     {
         "estado": "Tabasco",
-        "n": 23,
-        "aprobacion": 95.7,
-        "tat_med": 1.34
+        "n": 24,
+        "aprobacion": 95.8,
+        "tat_med": 1.32
     },
     {
         "estado": "Guerrero",
-        "n": 19,
+        "n": 20,
         "aprobacion": 100.0,
-        "tat_med": 1.36
+        "tat_med": 1.2
     },
     {
         "estado": "Yucatán",
-        "n": 14,
-        "aprobacion": 92.9,
-        "tat_med": 2.75
+        "n": 15,
+        "aprobacion": 93.3,
+        "tat_med": 2.65
     },
     {
         "estado": "Chiapas",
@@ -815,7 +815,7 @@ const D = {
     },
     {
         "estado": "Morelos",
-        "n": 7,
+        "n": 8,
         "aprobacion": 100.0,
         "tat_med": 0.82
     }
